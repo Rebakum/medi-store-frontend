@@ -96,7 +96,7 @@ const router = useRouter();
             </button>
 
             {/* Order Now */}
-            {/* <button
+            <button
                 className="w-full py-3 text-white bg-black rounded-xl hover:bg-gray-800"
                 onClick={() => {
                 add({
@@ -110,7 +110,7 @@ const router = useRouter();
                 }}
             >
                 Order Now
-            </button> */}
+            </button>
             </div>
 
       </div>

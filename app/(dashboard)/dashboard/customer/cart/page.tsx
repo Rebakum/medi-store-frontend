@@ -74,14 +74,14 @@ export default function CartPage() {
               Continue buy Medicine
             </button>
 
-            {/* <button
+            <button
               className="w-full py-3 text-white bg-black rounded-xl hover:bg-gray-800"
               onClick={() =>
                 router.push("/dashboard/customer/checkout")
               }
             >
               Order Now
-            </button> */}
+            </button>
           </div>
         </div>
       )}
