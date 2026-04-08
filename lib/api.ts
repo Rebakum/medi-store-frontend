@@ -1,57 +1,91 @@
-
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-console.log(BASE)
-if (!BASE) throw new Error("NEXT_PUBLIC_API_BASE missing");
-
+if (!BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL missing");
 
 export function getToken() {
   if (typeof window === "undefined") return "";
   return localStorage.getItem("accessToken") || "";
 }
 
-export async function apiJson<T>(path: string, options: RequestInit = {}): Promise<T> {
-  if (!BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL missing");
+type ApiErrorPayload = { message?: string; success?: boolean; errors?: any };
 
-  const token = getToken();
-  const res = await fetch(`${BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-    cache: "no-store",
-  });
+type ApiOptions = Omit<RequestInit, "body" | "headers"> & {
+  body?: any; 
+  headers?: Record<string, string>; 
+};
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(text || `Request failed: ${res.status}`);
+
+async function throwNiceError(res: Response) {
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) {
+    const j = (await res.json().catch(() => null)) as ApiErrorPayload | null;
+    throw new Error(j?.message || `Request failed: ${res.status}`);
   }
-
-  return res.json() as Promise<T>;
+  const text = await res.text().catch(() => "");
+  throw new Error(text || `Request failed: ${res.status}`);
 }
-export const api = apiJson;
 
+async function readJsonSafe<T>(res: Response): Promise<T> {
+  if (res.status === 204) return (null as unknown) as T;
 
-export async function apiForm<T>(path: string, formData: FormData, method: "POST" | "PATCH"): Promise<T> {
-  if (!BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL missing");
-
-  const token = getToken();
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-         },
-    body: formData,
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) {
     const text = await res.text().catch(() => "");
-    throw new Error(text || `Request failed: ${res.status}`);
+    return ((text ? text : null) as unknown) as T;
+  }
+  return (await res.json()) as T;
+}
+
+export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  const token = getToken();
+
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
+  const headers: Record<string, string> = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
+  // only set JSON header for non-FormData
+  if (!isFormData) {
+    headers["Content-Type"] = headers["Content-Type"] || "application/json";
   }
 
-  return res.json() as Promise<T>;
+  // auto stringify object body
+  let body: BodyInit | undefined = undefined;
+  if (options.body !== undefined && options.body !== null) {
+    if (isFormData) body = options.body as FormData;
+    else if (typeof options.body === "string") body = options.body;
+    else body = JSON.stringify(options.body);
+  }
+
+  const res = await fetch(`${BASE}${path}`, {
+    method: options.method || "GET",
+    headers,
+    body,
+    cache: "no-store",
+    credentials: options.credentials,
+    signal: options.signal,
+    mode: options.mode,
+    redirect: options.redirect,
+    referrerPolicy: options.referrerPolicy,
+    integrity: options.integrity,
+    keepalive: options.keepalive,
+  });
+
+  if (!res.ok) await throwNiceError(res);
+  return readJsonSafe<T>(res);
+}
+
+// aliases
+export const apiJson = api;
+
+export async function apiForm<T>(path: string, formData: FormData, method: "POST" | "PATCH" | "PUT") {
+  return api<T>(path, { method, body: formData });
+}
+
+export async function apiDelete<T>(path: string, options: ApiOptions = {}) {
+  return api<T>(path, { ...options, method: "DELETE" });
 }
 
 export function qs(params: Record<string, any>) {

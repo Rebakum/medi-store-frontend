@@ -72,7 +72,10 @@ const updateStatus = async (id: string, next: MedicineStatus) => {
                 </option>
               ))}
             </select>
-            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50" onClick={load}>
+            <button 
+            className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-white
+                       bg-[#2EB0D9] hover:bg-[#38CAE4] transition shadow-sm"
+             onClick={load}>
               Apply
             </button>
           </div>

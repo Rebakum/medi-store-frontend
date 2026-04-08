@@ -1,20 +1,18 @@
-import { api } from "@/lib/axios";
+import { apiJson as api } from "@/lib/api";
 
 export const authService = {
   login: async (payload: any) => {
-    const res = await api.post("/auth/login", payload);
-
-    // ✅ backend wraps inside data
-    return res.data.data; // { user, accessToken }
+    const res = await api<any>("/auth/login", { method: "POST", body: payload });
+    return res.data; // { user, accessToken }
   },
 
   register: async (payload: any) => {
-    const res = await api.post("/auth/register", payload);
+    const res = await api<any>("/auth/register", { method: "POST", body: payload });
     return res.data;
   },
 
   me: async () => {
-    const res = await api.get("/auth/me");
-    return res.data; // { success, message, data: user }
+    const res = await api<any>("/auth/me");
+    return res; // { success, message, data: user }
   },
 };

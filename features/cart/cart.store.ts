@@ -1,53 +1,60 @@
-import type { CartItem } from "@/types/cart";
+// features/cart/cart.store.ts
+type Listener = () => void;
 
-const KEY = "medistore_cart";
+export type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  qty: number;
+};
+
+let items: CartItem[] = [];
+const listeners = new Set<Listener>();
 
 export const cartStore = {
-  get(): CartItem[] {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem(KEY);
-      return raw ? (JSON.parse(raw) as CartItem[]) : [];
-    } catch {
-      return [];
-    }
+  get() {
+    return items;
   },
 
-  set(items: CartItem[]) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(KEY, JSON.stringify(items));
+  set(next: CartItem[]) {
+    items = next;
+    listeners.forEach((l) => l());
   },
 
-  clear() {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem(KEY);
+  subscribe(listener: Listener) {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener); // ✅ void
+    };
   },
 
   add(item: Omit<CartItem, "qty">, qty = 1) {
-    const items = this.get();
-    const found = items.find((x) => x.id === item.id);
+    const list = this.get();
+    const found = list.find((x) => x.id === item.id);
 
-    if (found) {
-      found.qty += qty;
-    } else {
-      items.push({ ...item, qty });
-    }
+    if (found) found.qty += qty;
+    else list.push({ ...item, qty });
 
-    this.set(items);
-    return items;
+    this.set([...list]); 
+    return this.get();
   },
 
   remove(id: string) {
-    const items = this.get().filter((x) => x.id !== id);
-    this.set(items);
-    return items;
+    const next = this.get().filter((x) => x.id !== id);
+    this.set(next);
+    return this.get();
   },
 
   updateQty(id: string, qty: number) {
-    const items = this.get().map((x) =>
+    const next = this.get().map((x) =>
       x.id === id ? { ...x, qty: Math.max(1, qty) } : x
     );
-    this.set(items);
-    return items;
+    this.set(next);
+    return this.get();
+  },
+
+  clear() {
+    this.set([]);
   },
 };

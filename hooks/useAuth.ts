@@ -4,12 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/features/auth/auth.service";
 
-type User = {
+export type User = {
   id: string;
-  email: string;
   name?: string | null;
-  role: "CUSTOMER" | "SELLER" | "ADMIN";
+  email: string;
+  role: "ADMIN" | "SELLER" | "CUSTOMER";
+  avatar?: string | null; 
 };
+
 
 const TOKEN_KEY = "accessToken";
 

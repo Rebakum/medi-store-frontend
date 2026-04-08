@@ -24,13 +24,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-md border rounded-xl p-6 space-y-4">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <form onSubmit={onSubmit} className="w-full max-w-md p-6 space-y-4 border rounded-xl">
         <h1 className="text-2xl font-semibold">Register</h1>
         {err && <p className="text-sm text-red-600">{err}</p>}
 
         <input
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full px-3 py-2 border rounded-lg"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -38,7 +38,7 @@ export default function RegisterPage() {
         />
 
         <input
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full px-3 py-2 border rounded-lg"
           placeholder="Email"
           type="email"
           value={email}
@@ -47,7 +47,7 @@ export default function RegisterPage() {
         />
 
         <input
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full px-3 py-2 border rounded-lg"
           placeholder="Password"
           type="password"
           value={password}
@@ -56,7 +56,7 @@ export default function RegisterPage() {
         />
 
         <select
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full px-3 py-2 border rounded-lg"
           value={role}
           onChange={(e) => setRole(e.target.value as "CUSTOMER" | "SELLER")}
         >
@@ -64,7 +64,8 @@ export default function RegisterPage() {
           <option value="SELLER">Seller</option>
         </select>
 
-        <button disabled={loading} className="w-full border rounded-lg py-2 disabled:opacity-60">
+        <button disabled={loading} className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-white
+                       bg-[#2EB0D9] hover:bg-[#38CAE4] transition shadow-sm">
           {loading ? "Creating..." : "Create account"}
         </button>
          <small>

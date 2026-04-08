@@ -1,21 +1,29 @@
-"use client";
+import ContactPage from "@/components/home/contact";
+import HeroSlider from "@/components/home/HeroSlider";
 
-import { useEffect, useState } from "react";
-import { api } from "@/lib/axios";
+import HomeMedicines from "@/components/home/HomeMedicines";
+import HomeCategories from "@/components/home/HomeCategories";
+
+
+import ReviewsHero from "@/components/home/ReviewsHero";
+import WhyChooseUs from "@/components/home/WhyChoose";
+import FeaturedBrands from "@/components/home/FeatcherBrands";
+import HowItWorks from "@/components/home/HowItWorks";
+
 
 export default function Home() {
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    api.get("/categories")
-      .then(res => setData(res.data))
-      .catch(err => setData(err.message));
-  }, []);
-
   return (
-    <div style={{ padding: 20 }}>
-      <h1>API CONNECT TEST</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
+    <>
+    <HeroSlider /> 
+    <HomeCategories/>    
+    <HomeMedicines />   
+    <WhyChooseUs/>
+    <FeaturedBrands/>
+    <HowItWorks/>  
+    <ReviewsHero />
+    
+
+      {/* rest of home */}
+    </>
   );
 }

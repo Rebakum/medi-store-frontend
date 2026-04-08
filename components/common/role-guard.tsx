@@ -27,10 +27,11 @@ export default function RoleGuard({
     if (loading) return;
 
    
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
+if (!user) {
+  router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+  return;
+}
+
 
    
     if (!allow.includes(user.role)) {
