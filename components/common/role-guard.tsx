@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/components/hooks/useAuth";
 
 type Role = "CUSTOMER" | "SELLER" | "ADMIN";
 

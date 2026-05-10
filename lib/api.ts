@@ -1,5 +1,9 @@
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-if (!BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL missing");
+if (!BASE) {
+  if (typeof window !== "undefined") {
+    console.warn("NEXT_PUBLIC_API_BASE_URL missing");
+  }
+}
 
 export function getToken() {
   if (typeof window === "undefined") return "";
@@ -9,10 +13,10 @@ export function getToken() {
 type ApiErrorPayload = { message?: string; success?: boolean; errors?: any };
 
 type ApiOptions = Omit<RequestInit, "body" | "headers"> & {
-  body?: any; 
-  headers?: Record<string, string>; 
+  body?: any;
+  headers?: Record<string, string>;
+  next?: { revalidate?: number | false; tags?: string[] };
 };
-
 
 async function throwNiceError(res: Response) {
   const ct = res.headers.get("content-type") || "";
@@ -36,6 +40,10 @@ async function readJsonSafe<T>(res: Response): Promise<T> {
 }
 
 export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  if (!BASE) {
+    throw new Error("API base URL not configured");
+  }
+
   const token = getToken();
 
   const isFormData =
@@ -46,12 +54,10 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
     ...(options.headers || {}),
   };
 
-  // only set JSON header for non-FormData
   if (!isFormData) {
     headers["Content-Type"] = headers["Content-Type"] || "application/json";
   }
 
-  // auto stringify object body
   let body: BodyInit | undefined = undefined;
   if (options.body !== undefined && options.body !== null) {
     if (isFormData) body = options.body as FormData;
@@ -59,11 +65,11 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
     else body = JSON.stringify(options.body);
   }
 
-  const res = await fetch(`${BASE}${path}`, {
+  const fetchOptions: RequestInit = {
     method: options.method || "GET",
     headers,
     body,
-    cache: "no-store",
+    cache: options.next?.revalidate === false ? "no-store" : "force-cache",
     credentials: options.credentials,
     signal: options.signal,
     mode: options.mode,
@@ -71,13 +77,29 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
     referrerPolicy: options.referrerPolicy,
     integrity: options.integrity,
     keepalive: options.keepalive,
-  });
+  };
 
-  if (!res.ok) await throwNiceError(res);
-  return readJsonSafe<T>(res);
+  if (options.next?.revalidate !== undefined && options.next.revalidate !== false) {
+    fetchOptions.next = { revalidate: options.next.revalidate as number };
+  }
+  if (options.next?.tags) {
+    fetchOptions.next = { ...fetchOptions.next, tags: options.next.tags };
+  }
+
+  try {
+    const res = await fetch(`${BASE}${path}`, fetchOptions);
+
+    if (!res.ok) await throwNiceError(res);
+    return readJsonSafe<T>(res);
+  } catch (error: any) {
+    if (error.name === "AbortError") {
+      throw error;
+    }
+    console.warn(`API Error [${path}]:`, error.message);
+    throw error;
+  }
 }
 
-// aliases
 export const apiJson = api;
 
 export async function apiForm<T>(path: string, formData: FormData, method: "POST" | "PATCH" | "PUT") {

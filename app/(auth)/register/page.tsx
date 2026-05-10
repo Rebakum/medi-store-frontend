@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/components/hooks/useAuth";
 import Link from "next/link";
 
 export default function RegisterPage() {

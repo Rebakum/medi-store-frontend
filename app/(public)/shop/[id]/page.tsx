@@ -63,7 +63,7 @@ export default function MedicineDetailsPage() {
 
   const cartImg = useMemo(() => {
     const first = m?.images?.[0]?.trim();
-    if (!first) return "/placeholder.png";
+    if (!first) return "/logo.png";
     return first.startsWith("http") ? first : `${assetBase}${first}`;
   }, [m?.images, assetBase]);
 

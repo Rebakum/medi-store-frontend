@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/components/hooks/useAuth";
 import Sidebar from "@/components/dashboard/sidebar";
 import Topbar from "@/components/dashboard/topbar";
+import RealtimeDebugOverlay from "@/components/common/RealtimeDebugOverlay";
 
 export default function DashboardLayout({
   children,
@@ -36,6 +37,7 @@ export default function DashboardLayout({
       <div className="flex-1">
         <Topbar />
         <main className="p-6">{children}</main>
+        <RealtimeDebugOverlay />
       </div>
     </div>
   );

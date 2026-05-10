@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 import { MyReview, Order, OrderUpdatedPayload, statusColor } from "@/lib/types";
 import ReviewModal from "@/components/reviews/ReviewModal";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/components/hooks/useAuth";
 import { getSocket } from "@/lib/socket";
 
 

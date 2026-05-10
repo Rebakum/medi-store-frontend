@@ -195,6 +195,13 @@ export type SellerStats = {
     status?: string;
     price?: number;
     createdAt?: string;
+    images?: string[];
   }>;
 };
 
+export type Variant = "badge" | "text" | "dot";
+
+export type Props = {
+  variant?: Variant;
+  isOnline?: boolean;
+};

@@ -46,7 +46,7 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-/* :root {
+:root {
   --bg: #F6F6F7;
   --text: #2D2D2D;
   --muted: #605D5E;
@@ -60,10 +60,17 @@
 
   --border: #E7E7EA;
   --footer: #2D2D2D;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+/* html {
+  scroll-behavior: smooth;
 } */
 
 
-/* .dark {
+.dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -95,7 +102,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-} */
+}
 
 
 @layer base {
